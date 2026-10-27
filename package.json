@@ -1,0 +1,39 @@
+{
+  "name": "avatar-creator",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@expo/metro-runtime": "~58.0.15",
+    "@expo/vector-icons": "^15.0.2",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "canvas-confetti": "^1.9.4",
+    "expo": "~58.0.19",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0",
+    "react-native-web": "^0.21.4",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/react": "~19.3.0",
+    "@types/three": "^0.170.0",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~58.0.4",
+    "typescript": "~6.0.3"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "expo lint"
+  },
+  "private": true
+}

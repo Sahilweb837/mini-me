@@ -1,0 +1,3 @@
+Let's build your 3D children's life-simulation character creator in React Native using Expo and React Three Fiber. This lets you create a mobile app with a 3D avatar, outfit selection, hairstyle changes, skin colors, and a save button.
+
+One important distinction: React Native handles the mobile interface, while a Three.js-based renderer displays the 3D character. For a larger, high-performance 3D world, Unity is still the stronger option. a game craw in expo

@@ -1,0 +1,990 @@
+import React, { useRef, useMemo } from 'react';
+import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
+import { CharacterConfig, PoseType } from '../../types/character';
+
+interface AvatarModelProps {
+  config: CharacterConfig;
+  pose: PoseType;
+}
+
+export const AvatarModel: React.FC<AvatarModelProps> = ({ config, pose }) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const headRef = useRef<THREE.Group>(null);
+  const leftArmRef = useRef<THREE.Group>(null);
+  const rightArmRef = useRef<THREE.Group>(null);
+  const leftLegRef = useRef<THREE.Group>(null);
+  const rightLegRef = useRef<THREE.Group>(null);
+  const leftEyelidRef = useRef<THREE.Mesh>(null);
+  const rightEyelidRef = useRef<THREE.Mesh>(null);
+  const wingsRef = useRef<THREE.Group>(null);
+  const capeRef = useRef<THREE.Group>(null);
+
+  // Materials & Colors memoized
+  const skinMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: config.skinColor,
+    roughness: 0.6,
+    metalness: 0.05,
+  }), [config.skinColor]);
+
+  const hairMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: config.hairColor,
+    roughness: 0.45,
+    metalness: 0.1,
+  }), [config.hairColor]);
+
+  const eyeColorMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: config.eyeColor,
+    roughness: 0.2,
+  }), [config.eyeColor]);
+
+  const outfitPrimaryMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: config.outfitPrimaryColor,
+    roughness: 0.5,
+  }), [config.outfitPrimaryColor]);
+
+  const outfitSecondaryMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: config.outfitSecondaryColor,
+    roughness: 0.5,
+  }), [config.outfitSecondaryColor]);
+
+  const shoesMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: config.shoesColor,
+    roughness: 0.4,
+  }), [config.shoesColor]);
+
+  const goldMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#FBBF24',
+    metalness: 0.85,
+    roughness: 0.2,
+  }), []);
+
+  const whiteMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#FFFFFF',
+    roughness: 0.3,
+  }), []);
+
+  const blackMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#1E293B',
+    roughness: 0.4,
+  }), []);
+
+  const blushMaterial = useMemo(() => new THREE.MeshBasicMaterial({
+    color: config.blushColor || '#FF6B8B',
+    transparent: true,
+    opacity: config.blushEnabled ? 0.45 : 0.0,
+  }), [config.blushColor, config.blushEnabled]);
+
+  // Animation frame loop
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+
+    // Natural blinking: blink for ~0.15s every 3.5 seconds
+    const blinkCycle = time % 3.5;
+    const isBlinking = blinkCycle > 3.35 && blinkCycle < 3.5;
+    const blinkScaleY = isBlinking ? 1.0 : (config.expression === 'sleepy' ? 0.9 : (config.expression === 'wink' ? 0.0 : 0.01));
+    const rightBlinkScaleY = isBlinking ? 1.0 : (config.expression === 'sleepy' ? 0.9 : (config.expression === 'wink' ? 0.95 : 0.01));
+
+    if (leftEyelidRef.current) {
+      leftEyelidRef.current.scale.y = THREE.MathUtils.lerp(leftEyelidRef.current.scale.y, blinkScaleY, 0.4);
+    }
+    if (rightEyelidRef.current) {
+      rightEyelidRef.current.scale.y = THREE.MathUtils.lerp(rightEyelidRef.current.scale.y, rightBlinkScaleY, 0.4);
+    }
+
+    // Wing flutter animation
+    if (wingsRef.current) {
+      wingsRef.current.children.forEach((wing, idx) => {
+        const sign = idx === 0 ? 1 : -1;
+        wing.rotation.y = sign * Math.sin(time * 12) * 0.35;
+      });
+    }
+
+    // Cape flutter animation
+    if (capeRef.current) {
+      capeRef.current.rotation.x = 0.25 + Math.sin(time * 5) * 0.08;
+    }
+
+    // Pose animations
+    if (pose === 'idle') {
+      // Gentle breathing bob
+      if (groupRef.current) {
+        groupRef.current.position.y = Math.sin(time * 2.5) * 0.04;
+      }
+      if (headRef.current) {
+        headRef.current.rotation.y = Math.sin(time * 1.2) * 0.05;
+        headRef.current.rotation.z = Math.sin(time * 1.5) * 0.02;
+      }
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.z = 0.2 + Math.sin(time * 2.5) * 0.04;
+        leftArmRef.current.rotation.x = 0;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.z = -0.2 - Math.sin(time * 2.5) * 0.04;
+        rightArmRef.current.rotation.x = 0;
+      }
+      if (leftLegRef.current) leftLegRef.current.rotation.x = 0;
+      if (rightLegRef.current) rightLegRef.current.rotation.x = 0;
+
+    } else if (pose === 'wave') {
+      // Waving hand
+      if (groupRef.current) {
+        groupRef.current.position.y = Math.sin(time * 3) * 0.03;
+      }
+      if (headRef.current) {
+        headRef.current.rotation.z = -0.08;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.z = -2.4 + Math.sin(time * 8) * 0.35;
+        rightArmRef.current.rotation.x = 0.2;
+      }
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.z = 0.3;
+        leftArmRef.current.rotation.x = 0;
+      }
+
+    } else if (pose === 'dance') {
+      // Joyful dance: side to side tilt + bouncy jump
+      const danceBeat = time * 6;
+      if (groupRef.current) {
+        groupRef.current.position.y = Math.abs(Math.sin(danceBeat)) * 0.12;
+        groupRef.current.rotation.y = Math.sin(danceBeat * 0.5) * 0.25;
+      }
+      if (headRef.current) {
+        headRef.current.rotation.z = Math.sin(danceBeat * 0.5) * 0.15;
+      }
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.z = 1.0 + Math.sin(danceBeat) * 0.4;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.z = -1.0 - Math.cos(danceBeat) * 0.4;
+      }
+      if (leftLegRef.current) {
+        leftLegRef.current.rotation.x = Math.sin(danceBeat) * 0.3;
+      }
+      if (rightLegRef.current) {
+        rightLegRef.current.rotation.x = -Math.sin(danceBeat) * 0.3;
+      }
+
+    } else if (pose === 'cheer') {
+      // Hands high in air, celebrating!
+      const jumpTime = time * 5;
+      if (groupRef.current) {
+        groupRef.current.position.y = Math.abs(Math.sin(jumpTime)) * 0.18;
+      }
+      if (headRef.current) {
+        headRef.current.rotation.x = -0.15;
+        headRef.current.rotation.z = Math.sin(jumpTime) * 0.05;
+      }
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.z = 2.6 + Math.sin(jumpTime) * 0.15;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.z = -2.6 - Math.sin(jumpTime) * 0.15;
+      }
+
+    } else if (pose === 'sparkle') {
+      // Slow magical float & gentle spin
+      if (groupRef.current) {
+        groupRef.current.position.y = 0.08 + Math.sin(time * 3) * 0.08;
+      }
+      if (headRef.current) {
+        headRef.current.rotation.y = Math.sin(time * 2) * 0.1;
+      }
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.z = 0.8 + Math.sin(time * 3) * 0.1;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.z = -0.8 - Math.sin(time * 3) * 0.1;
+      }
+
+    } else if (pose === 'walk') {
+      // Natural lively walk cycle with alternating arms and legs
+      const walkTime = time * 8;
+      if (groupRef.current) {
+        groupRef.current.position.y = Math.abs(Math.sin(walkTime)) * 0.04;
+      }
+      if (leftLegRef.current) leftLegRef.current.rotation.x = Math.sin(walkTime) * 0.55;
+      if (rightLegRef.current) rightLegRef.current.rotation.x = -Math.sin(walkTime) * 0.55;
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.x = -Math.sin(walkTime) * 0.45;
+        leftArmRef.current.rotation.z = 0.2;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.x = Math.sin(walkTime) * 0.45;
+        rightArmRef.current.rotation.z = -0.2;
+      }
+      if (headRef.current) {
+        headRef.current.rotation.y = Math.sin(walkTime * 0.5) * 0.04;
+        headRef.current.rotation.z = Math.sin(walkTime * 0.5) * 0.02;
+        headRef.current.rotation.x = 0;
+      }
+
+    } else if (pose === 'run') {
+      // Fast, enthusiastic sprint with forward tilt
+      const runTime = time * 13;
+      if (groupRef.current) {
+        groupRef.current.position.y = Math.abs(Math.sin(runTime)) * 0.08;
+      }
+      if (leftLegRef.current) leftLegRef.current.rotation.x = Math.sin(runTime) * 0.85;
+      if (rightLegRef.current) rightLegRef.current.rotation.x = -Math.sin(runTime) * 0.85;
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.x = -Math.sin(runTime) * 0.75;
+        leftArmRef.current.rotation.z = 0.25;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.x = Math.sin(runTime) * 0.75;
+        rightArmRef.current.rotation.z = -0.25;
+      }
+      if (headRef.current) {
+        headRef.current.rotation.x = 0.12;
+        headRef.current.rotation.z = Math.sin(runTime * 0.5) * 0.04;
+      }
+
+    } else if (pose === 'jump') {
+      // In-air leap with raised arms and bent legs
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.z = 2.4;
+        leftArmRef.current.rotation.x = 0.2;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.z = -2.4;
+        rightArmRef.current.rotation.x = 0.2;
+      }
+      if (leftLegRef.current) leftLegRef.current.rotation.x = 0.4;
+      if (rightLegRef.current) rightLegRef.current.rotation.x = -0.35;
+      if (headRef.current) headRef.current.rotation.x = -0.15;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -0.6, 0]}>
+      {/* ================= TORSO & OUTFIT ================= */}
+      <group position={[0, 1.05, 0]}>
+        {/* Main Torso */}
+        <mesh castShadow receiveShadow material={outfitPrimaryMaterial}>
+          <cylinderGeometry args={[0.34, 0.38, 0.65, 24]} />
+        </mesh>
+
+        {/* Outfit Specific Details */}
+        {config.outfit === 'everyday_casual' && (
+          <group>
+            {/* Denim Overalls Bib */}
+            <mesh position={[0, 0.04, 0.19]} castShadow material={outfitSecondaryMaterial}>
+              <boxGeometry args={[0.42, 0.38, 0.04]} />
+            </mesh>
+            {/* Overalls Straps */}
+            <mesh position={[-0.14, 0.18, 0.12]} rotation={[0.2, 0, 0]} material={outfitSecondaryMaterial}>
+              <boxGeometry args={[0.07, 0.36, 0.05]} />
+            </mesh>
+            <mesh position={[0.14, 0.18, 0.12]} rotation={[0.2, 0, 0]} material={outfitSecondaryMaterial}>
+              <boxGeometry args={[0.07, 0.36, 0.05]} />
+            </mesh>
+            {/* Golden Buckle Buttons */}
+            <mesh position={[-0.14, 0.18, 0.22]} rotation={[Math.PI / 2, 0, 0]} material={goldMaterial}>
+              <cylinderGeometry args={[0.03, 0.03, 0.02, 12]} />
+            </mesh>
+            <mesh position={[0.14, 0.18, 0.22]} rotation={[Math.PI / 2, 0, 0]} material={goldMaterial}>
+              <cylinderGeometry args={[0.03, 0.03, 0.02, 12]} />
+            </mesh>
+            {/* Cute Chest Pocket */}
+            <mesh position={[0, -0.02, 0.22]} material={outfitPrimaryMaterial}>
+              <boxGeometry args={[0.18, 0.14, 0.02]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.outfit === 'space_astronaut' && (
+          <group>
+            {/* Life Support Chest Pack */}
+            <mesh position={[0, 0.06, 0.21]} castShadow material={outfitSecondaryMaterial}>
+              <boxGeometry args={[0.36, 0.32, 0.08]} />
+            </mesh>
+            {/* Status Gauges */}
+            <mesh position={[-0.09, 0.08, 0.26]} rotation={[Math.PI / 2, 0, 0]} material={goldMaterial}>
+              <cylinderGeometry args={[0.03, 0.03, 0.02, 12]} />
+            </mesh>
+            <mesh position={[0.09, 0.08, 0.26]} rotation={[Math.PI / 2, 0, 0]} material={skinMaterial}>
+              <cylinderGeometry args={[0.03, 0.03, 0.02, 12]} />
+            </mesh>
+            {/* Tech Oxygen Tubes */}
+            <mesh position={[0, -0.06, 0.26]} material={whiteMaterial}>
+              <boxGeometry args={[0.24, 0.04, 0.02]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.outfit === 'dino_hoodie' && (
+          <group>
+            {/* Kangaroo Pouch */}
+            <mesh position={[0, -0.12, 0.21]} material={outfitSecondaryMaterial}>
+              <boxGeometry args={[0.36, 0.18, 0.04]} />
+            </mesh>
+            {/* Dino Spine Ridges on Back */}
+            {[-0.15, 0.0, 0.15].map((yOffset, i) => (
+              <mesh key={i} position={[0, yOffset, -0.22]} rotation={[Math.PI / 2, 0, 0]} material={outfitSecondaryMaterial}>
+                <coneGeometry args={[0.06, 0.12, 4]} />
+              </mesh>
+            ))}
+          </group>
+        )}
+
+        {config.outfit === 'royal_prince' && (
+          <group>
+            {/* Golden Epaulets (Shoulder Pads) */}
+            <mesh position={[-0.34, 0.28, 0]} material={goldMaterial}>
+              <boxGeometry args={[0.14, 0.06, 0.22]} />
+            </mesh>
+            <mesh position={[0.34, 0.28, 0]} material={goldMaterial}>
+              <boxGeometry args={[0.14, 0.06, 0.22]} />
+            </mesh>
+            {/* Royal Sash */}
+            <mesh position={[0, 0.04, 0.2]} rotation={[0, 0, -0.45]} material={goldMaterial}>
+              <boxGeometry args={[0.1, 0.65, 0.02]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.outfit === 'superhero_cape' && (
+          <group>
+            {/* Chest Star Emblem */}
+            <mesh position={[0, 0.1, 0.2]} material={goldMaterial}>
+              <octahedronGeometry args={[0.11]} />
+            </mesh>
+            {/* Hero Belt */}
+            <mesh position={[0, -0.28, 0.02]} material={goldMaterial}>
+              <cylinderGeometry args={[0.38, 0.39, 0.08, 24]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.outfit === 'cozy_pajamas' && (
+          <group>
+            {/* Fluffy Collar */}
+            <mesh position={[0, 0.3, 0]} rotation={[Math.PI / 2, 0, 0]} material={whiteMaterial}>
+              <torusGeometry args={[0.26, 0.06, 12, 24]} />
+            </mesh>
+            {/* Pajama Buttons */}
+            {[0.14, 0.0, -0.14].map((y, idx) => (
+              <mesh key={idx} position={[0, y, 0.2]} material={goldMaterial}>
+                <sphereGeometry args={[0.025, 12, 12]} />
+              </mesh>
+            ))}
+          </group>
+        )}
+      </group>
+
+      {/* ================= HEAD & FACE ================= */}
+      <group ref={headRef} position={[0, 1.75, 0]}>
+        {/* Head Base Sphere */}
+        <mesh castShadow receiveShadow material={skinMaterial}>
+          <sphereGeometry args={[0.54, 32, 32]} />
+        </mesh>
+
+        {/* Cute Rounded Ears */}
+        <mesh position={[-0.53, 0, 0]} rotation={[0, 0.3, 0]} material={skinMaterial}>
+          <sphereGeometry args={[0.12, 16, 16]} />
+        </mesh>
+        <mesh position={[0.53, 0, 0]} rotation={[0, -0.3, 0]} material={skinMaterial}>
+          <sphereGeometry args={[0.12, 16, 16]} />
+        </mesh>
+
+        {/* Cute Button Nose */}
+        <mesh position={[0, -0.04, 0.52]} material={skinMaterial}>
+          <sphereGeometry args={[0.05, 16, 16]} />
+        </mesh>
+
+        {/* Rosy Cheeks */}
+        <mesh position={[-0.28, -0.12, 0.44]} rotation={[0, -0.4, 0]} material={blushMaterial}>
+          <circleGeometry args={[0.1, 24]} />
+        </mesh>
+        <mesh position={[0.28, -0.12, 0.44]} rotation={[0, 0.4, 0]} material={blushMaterial}>
+          <circleGeometry args={[0.1, 24]} />
+        </mesh>
+
+        {/* Eyes (Left & Right) */}
+        <group position={[-0.18, 0.06, 0.46]} rotation={[0, -0.15, 0]}>
+          {/* Eye White (Sclera) */}
+          <mesh material={whiteMaterial}>
+            <sphereGeometry args={[0.11, 24, 24]} />
+          </mesh>
+          {/* Iris */}
+          <mesh position={[0, 0, 0.08]} rotation={[Math.PI / 2, 0, 0]} material={eyeColorMaterial}>
+            <cylinderGeometry args={[0.065, 0.065, 0.02, 24]} />
+          </mesh>
+          {/* Pupil */}
+          <mesh position={[0, 0, 0.095]} rotation={[Math.PI / 2, 0, 0]} material={blackMaterial}>
+            <cylinderGeometry args={[0.04, 0.04, 0.015, 24]} />
+          </mesh>
+          {/* Catchlight Sparkles */}
+          <mesh position={[0.02, 0.025, 0.105]} material={whiteMaterial}>
+            <sphereGeometry args={[0.02, 12, 12]} />
+          </mesh>
+          <mesh position={[-0.015, -0.02, 0.105]} material={whiteMaterial}>
+            <sphereGeometry args={[0.01, 12, 12]} />
+          </mesh>
+          {/* Animated Blinking Eyelid */}
+          <mesh ref={leftEyelidRef} position={[0, 0.04, 0.07]} material={skinMaterial}>
+            <boxGeometry args={[0.22, 0.14, 0.1]} />
+          </mesh>
+        </group>
+
+        <group position={[0.18, 0.06, 0.46]} rotation={[0, 0.15, 0]}>
+          {/* Eye White (Sclera) */}
+          <mesh material={whiteMaterial}>
+            <sphereGeometry args={[0.11, 24, 24]} />
+          </mesh>
+          {/* Iris */}
+          <mesh position={[0, 0, 0.08]} rotation={[Math.PI / 2, 0, 0]} material={eyeColorMaterial}>
+            <cylinderGeometry args={[0.065, 0.065, 0.02, 24]} />
+          </mesh>
+          {/* Pupil */}
+          <mesh position={[0, 0, 0.095]} rotation={[Math.PI / 2, 0, 0]} material={blackMaterial}>
+            <cylinderGeometry args={[0.04, 0.04, 0.015, 24]} />
+          </mesh>
+          {/* Catchlight Sparkles */}
+          <mesh position={[0.02, 0.025, 0.105]} material={whiteMaterial}>
+            <sphereGeometry args={[0.02, 12, 12]} />
+          </mesh>
+          <mesh position={[-0.015, -0.02, 0.105]} material={whiteMaterial}>
+            <sphereGeometry args={[0.01, 12, 12]} />
+          </mesh>
+          {/* Animated Blinking Eyelid */}
+          <mesh ref={rightEyelidRef} position={[0, 0.04, 0.07]} material={skinMaterial}>
+            <boxGeometry args={[0.22, 0.14, 0.1]} />
+          </mesh>
+        </group>
+
+        {/* Eyebrows */}
+        <group position={[-0.18, 0.22, 0.47]} rotation={[0, 0, config.expression === 'silly' ? 0.25 : (config.expression === 'excited' ? -0.15 : 0.05)]}>
+          <mesh material={hairMaterial}>
+            <boxGeometry args={[0.12, 0.035, 0.04]} />
+          </mesh>
+        </group>
+        <group position={[0.18, 0.22, 0.47]} rotation={[0, 0, config.expression === 'silly' ? -0.2 : (config.expression === 'excited' ? 0.15 : -0.05)]}>
+          <mesh material={hairMaterial}>
+            <boxGeometry args={[0.12, 0.035, 0.04]} />
+          </mesh>
+        </group>
+
+        {/* Mouth with Expressions */}
+        {config.expression === 'happy' && (
+          <mesh position={[0, -0.2, 0.48]} rotation={[Math.PI, 0, 0]} material={blackMaterial}>
+            <torusGeometry args={[0.08, 0.022, 12, 24, Math.PI]} />
+          </mesh>
+        )}
+        {config.expression === 'excited' && (
+          <group position={[0, -0.22, 0.48]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]} material={blackMaterial}>
+              <cylinderGeometry args={[0.08, 0.08, 0.02, 18]} />
+            </mesh>
+            <mesh position={[0, -0.03, 0.015]} material={blushMaterial}>
+              <sphereGeometry args={[0.045, 12, 12]} />
+            </mesh>
+          </group>
+        )}
+        {config.expression === 'silly' && (
+          <group position={[0, -0.2, 0.48]}>
+            <mesh rotation={[Math.PI, 0, 0]} material={blackMaterial}>
+              <torusGeometry args={[0.08, 0.02, 12, 24, Math.PI]} />
+            </mesh>
+            {/* Cheeky Tongue */}
+            <mesh position={[0.02, -0.06, 0.03]} rotation={[0.4, 0, 0]} material={blushMaterial}>
+              <boxGeometry args={[0.06, 0.09, 0.03]} />
+            </mesh>
+          </group>
+        )}
+        {config.expression === 'cool' && (
+          <mesh position={[0.03, -0.2, 0.48]} rotation={[Math.PI, 0, -0.25]} material={blackMaterial}>
+            <torusGeometry args={[0.08, 0.02, 12, 24, Math.PI * 0.7]} />
+          </mesh>
+        )}
+        {(config.expression === 'wink' || config.expression === 'sleepy') && (
+          <mesh position={[0, -0.2, 0.48]} rotation={[Math.PI, 0, 0]} material={blackMaterial}>
+            <torusGeometry args={[0.07, 0.02, 12, 24, Math.PI]} />
+          </mesh>
+        )}
+
+        {/* ================= HAIRSTYLES ================= */}
+        {config.hairstyle === 'bouncy_bob' && (
+          <group position={[0, 0.05, 0]}>
+            {/* Hair Cap Base */}
+            <mesh position={[0, 0.08, -0.04]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.57, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.65]} />
+            </mesh>
+            {/* Rounded Bob Sides */}
+            <mesh position={[-0.42, -0.15, 0.05]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.25, 16, 16]} />
+            </mesh>
+            <mesh position={[0.42, -0.15, 0.05]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.25, 16, 16]} />
+            </mesh>
+            {/* Cute Front Bangs */}
+            <mesh position={[0, 0.35, 0.42]} rotation={[0.4, 0, 0]} material={hairMaterial}>
+              <boxGeometry args={[0.48, 0.18, 0.12]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.hairstyle === 'fluffy_curls' && (
+          <group position={[0, 0.05, 0]}>
+            {/* Multi-sphere Cloud of Curls */}
+            {[
+              [0, 0.45, 0, 0.32],
+              [-0.28, 0.38, 0.1, 0.28],
+              [0.28, 0.38, 0.1, 0.28],
+              [-0.38, 0.2, 0.25, 0.24],
+              [0.38, 0.2, 0.25, 0.24],
+              [-0.42, 0.05, 0.1, 0.25],
+              [0.42, 0.05, 0.1, 0.25],
+              [0, 0.25, -0.38, 0.35],
+              [-0.25, 0.1, -0.35, 0.3],
+              [0.25, 0.1, -0.35, 0.3],
+            ].map(([x, y, z, r], idx) => (
+              <mesh key={idx} position={[x, y, z]} castShadow material={hairMaterial}>
+                <sphereGeometry args={[r, 16, 16]} />
+              </mesh>
+            ))}
+          </group>
+        )}
+
+        {config.hairstyle === 'high_ponytail' && (
+          <group position={[0, 0.05, 0]}>
+            {/* Hair Cap Base */}
+            <mesh position={[0, 0.1, -0.05]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.56, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.7]} />
+            </mesh>
+            {/* Front Bangs Fringe */}
+            <mesh position={[0, 0.34, 0.4]} rotation={[0.35, 0, 0]} material={hairMaterial}>
+              <boxGeometry args={[0.42, 0.15, 0.1]} />
+            </mesh>
+            {/* Ribbon Tie */}
+            <mesh position={[0, 0.48, -0.32]} rotation={[Math.PI / 4, 0, 0]} material={goldMaterial}>
+              <torusGeometry args={[0.1, 0.04, 12, 24]} />
+            </mesh>
+            {/* High Ponytail Tail Droop */}
+            <mesh position={[0, 0.25, -0.58]} rotation={[-0.6, 0, 0]} castShadow material={hairMaterial}>
+              <cylinderGeometry args={[0.16, 0.08, 0.55, 16]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.hairstyle === 'spiky_pixie' && (
+          <group position={[0, 0.05, 0]}>
+            {/* Hair Base */}
+            <mesh position={[0, 0.12, -0.04]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.56, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.65]} />
+            </mesh>
+            {/* Playful Spikes */}
+            {[
+              [0, 0.58, 0.1, [0.3, 0, 0], 0.14, 0.32],
+              [-0.2, 0.54, 0.05, [0.2, 0, 0.3], 0.13, 0.28],
+              [0.2, 0.54, 0.05, [0.2, 0, -0.3], 0.13, 0.28],
+              [-0.32, 0.4, 0.2, [0.4, 0, 0.4], 0.12, 0.24],
+              [0.32, 0.4, 0.2, [0.4, 0, -0.4], 0.12, 0.24],
+              [0, 0.52, -0.22, [-0.4, 0, 0], 0.14, 0.28],
+            ].map(([x, y, z, rot, rad, h], idx) => (
+              <mesh key={idx} position={[x as number, y as number, z as number]} rotation={rot as [number, number, number]} castShadow material={hairMaterial}>
+                <coneGeometry args={[rad as number, h as number, 8]} />
+              </mesh>
+            ))}
+          </group>
+        )}
+
+        {config.hairstyle === 'space_buns' && (
+          <group position={[0, 0.05, 0]}>
+            {/* Hair Cap Base */}
+            <mesh position={[0, 0.1, -0.04]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.56, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.7]} />
+            </mesh>
+            {/* Left Puff Bun & Tie */}
+            <mesh position={[-0.42, 0.52, -0.05]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.26, 20, 20]} />
+            </mesh>
+            <mesh position={[-0.42, 0.36, -0.05]} rotation={[Math.PI / 2, 0, 0]} material={outfitSecondaryMaterial}>
+              <torusGeometry args={[0.12, 0.04, 12, 24]} />
+            </mesh>
+            {/* Right Puff Bun & Tie */}
+            <mesh position={[0.42, 0.52, -0.05]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.26, 20, 20]} />
+            </mesh>
+            <mesh position={[0.42, 0.36, -0.05]} rotation={[Math.PI / 2, 0, 0]} material={outfitSecondaryMaterial}>
+              <torusGeometry args={[0.12, 0.04, 12, 24]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.hairstyle === 'explorer_cap' && (
+          <group position={[0, 0.15, 0]}>
+            {/* Cap Dome */}
+            <mesh position={[0, 0.25, -0.05]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.56, 24, 16, 0, Math.PI * 2, 0, Math.PI * 0.55]} />
+            </mesh>
+            {/* Cap Visor Brim */}
+            <mesh position={[0, 0.22, 0.52]} rotation={[0.25, 0, 0]} material={hairMaterial}>
+              <cylinderGeometry args={[0.48, 0.52, 0.05, 24, 1, false, 0, Math.PI]} />
+            </mesh>
+            {/* Cap Front Button Badge */}
+            <mesh position={[0, 0.44, 0.36]} rotation={[Math.PI / 3, 0, 0]} material={goldMaterial}>
+              <cylinderGeometry args={[0.06, 0.06, 0.02, 16]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.hairstyle === 'shaggy_cut' && (
+          <group position={[0, 0.05, 0]}>
+            <mesh position={[0, 0.12, -0.04]} castShadow material={hairMaterial}>
+              <sphereGeometry args={[0.57, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.7]} />
+            </mesh>
+            {/* Side Locks */}
+            <mesh position={[-0.45, -0.05, 0.15]} rotation={[0, 0, -0.2]} material={hairMaterial}>
+              <capsuleGeometry args={[0.1, 0.35, 8, 16]} />
+            </mesh>
+            <mesh position={[0.45, -0.05, 0.15]} rotation={[0, 0, 0.2]} material={hairMaterial}>
+              <capsuleGeometry args={[0.1, 0.35, 8, 16]} />
+            </mesh>
+          </group>
+        )}
+
+        {/* ================= GLASSES ================= */}
+        {config.glasses === 'round_frames' && (
+          <group position={[0, 0.06, 0.54]}>
+            <mesh position={[-0.19, 0, 0]} material={blackMaterial}>
+              <torusGeometry args={[0.13, 0.02, 12, 24]} />
+            </mesh>
+            <mesh position={[0.19, 0, 0]} material={blackMaterial}>
+              <torusGeometry args={[0.13, 0.02, 12, 24]} />
+            </mesh>
+            {/* Center Bridge */}
+            <mesh position={[0, 0.02, 0]} material={blackMaterial}>
+              <boxGeometry args={[0.12, 0.02, 0.02]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.glasses === 'star_shades' && (
+          <group position={[0, 0.06, 0.54]}>
+            <mesh position={[-0.19, 0, 0]} rotation={[Math.PI / 2, 0, 0.3]} material={goldMaterial}>
+              <cylinderGeometry args={[0.13, 0.13, 0.02, 5]} />
+            </mesh>
+            <mesh position={[0.19, 0, 0]} rotation={[Math.PI / 2, 0, -0.3]} material={goldMaterial}>
+              <cylinderGeometry args={[0.13, 0.13, 0.02, 5]} />
+            </mesh>
+            <mesh position={[0, 0.02, 0]} material={goldMaterial}>
+              <boxGeometry args={[0.12, 0.025, 0.02]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.glasses === 'cool_sunglasses' && (
+          <group position={[0, 0.06, 0.54]}>
+            <mesh material={blackMaterial}>
+              <boxGeometry args={[0.56, 0.16, 0.04]} />
+            </mesh>
+          </group>
+        )}
+
+        {/* ================= HEAD ACCESSORIES ================= */}
+        {config.headAccessory === 'golden_tiara' && (
+          <group position={[0, 0.55, 0.1]} rotation={[-0.1, 0, 0]}>
+            <mesh material={goldMaterial}>
+              <cylinderGeometry args={[0.3, 0.33, 0.08, 24, 1, true]} />
+            </mesh>
+            {/* Crown Spikes */}
+            {[-0.2, -0.1, 0, 0.1, 0.2].map((x, idx) => (
+              <mesh key={idx} position={[x, 0.1 + (idx === 2 ? 0.08 : 0), 0.28]} material={goldMaterial}>
+                <coneGeometry args={[0.04, 0.12 + (idx === 2 ? 0.08 : 0), 8]} />
+              </mesh>
+            ))}
+          </group>
+        )}
+
+        {config.headAccessory === 'bear_ears' && (
+          <group position={[0, 0.46, 0]}>
+            {/* Left Bear Ear */}
+            <mesh position={[-0.42, 0.15, 0]} material={hairMaterial}>
+              <sphereGeometry args={[0.18, 16, 16]} />
+            </mesh>
+            <mesh position={[-0.42, 0.15, 0.06]} material={blushMaterial}>
+              <sphereGeometry args={[0.1, 16, 16]} />
+            </mesh>
+            {/* Right Bear Ear */}
+            <mesh position={[0.42, 0.15, 0]} material={hairMaterial}>
+              <sphereGeometry args={[0.18, 16, 16]} />
+            </mesh>
+            <mesh position={[0.42, 0.15, 0.06]} material={blushMaterial}>
+              <sphereGeometry args={[0.1, 16, 16]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.headAccessory === 'dino_spikes' && (
+          <group position={[0, 0.45, 0.2]}>
+            {[
+              [0, 0.18, 0.15, 0.08, 0.18],
+              [0, 0.24, -0.05, 0.09, 0.2],
+              [0, 0.22, -0.25, 0.08, 0.18],
+            ].map(([x, y, z, rad, h], idx) => (
+              <mesh key={idx} position={[x, y, z]} material={goldMaterial}>
+                <coneGeometry args={[rad, h, 8]} />
+              </mesh>
+            ))}
+          </group>
+        )}
+
+        {config.headAccessory === 'party_hat' && (
+          <group position={[0, 0.58, 0.05]} rotation={[-0.1, 0, 0.15]}>
+            <mesh material={outfitSecondaryMaterial}>
+              <coneGeometry args={[0.2, 0.45, 16]} />
+            </mesh>
+            <mesh position={[0, 0.25, 0]} material={goldMaterial}>
+              <sphereGeometry args={[0.06, 12, 12]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.headAccessory === 'flower_crown' && (
+          <group position={[0, 0.45, 0.1]} rotation={[-0.15, 0, 0]}>
+            <mesh rotation={[Math.PI / 2, 0, 0]} material={outfitSecondaryMaterial}>
+              <torusGeometry args={[0.48, 0.04, 12, 32]} />
+            </mesh>
+            {[-0.35, -0.18, 0, 0.18, 0.35].map((x, idx) => (
+              <mesh key={idx} position={[x, 0.02, 0.45]} material={blushMaterial}>
+                <sphereGeometry args={[0.06, 12, 12]} />
+              </mesh>
+            ))}
+          </group>
+        )}
+      </group>
+
+      {/* ================= ARMS & HANDS ================= */}
+      {/* Left Arm */}
+      <group ref={leftArmRef} position={[-0.42, 1.25, 0]}>
+        {/* Shoulder Sleeve */}
+        <mesh position={[0, -0.15, 0]} material={outfitPrimaryMaterial}>
+          <capsuleGeometry args={[0.11, 0.25, 8, 16]} />
+        </mesh>
+        {/* Forearm & Hand */}
+        <mesh position={[0, -0.38, 0]} material={skinMaterial}>
+          <capsuleGeometry args={[0.09, 0.2, 8, 16]} />
+        </mesh>
+      </group>
+
+      {/* Right Arm */}
+      <group ref={rightArmRef} position={[0.42, 1.25, 0]}>
+        {/* Shoulder Sleeve */}
+        <mesh position={[0, -0.15, 0]} material={outfitPrimaryMaterial}>
+          <capsuleGeometry args={[0.11, 0.25, 8, 16]} />
+        </mesh>
+        {/* Forearm & Hand */}
+        <mesh position={[0, -0.38, 0]} material={skinMaterial}>
+          <capsuleGeometry args={[0.09, 0.2, 8, 16]} />
+        </mesh>
+
+        {/* Hand Held Prop (attached to right hand) */}
+        {config.handItem === 'magic_wand' && (
+          <group position={[0, -0.5, 0.1]} rotation={[0.4, 0, 0]}>
+            <mesh material={goldMaterial}>
+              <cylinderGeometry args={[0.02, 0.02, 0.45, 12]} />
+            </mesh>
+            <mesh position={[0, 0.24, 0]} material={goldMaterial}>
+              <octahedronGeometry args={[0.08]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.handItem === 'teddy_bear' && (
+          <group position={[0.12, -0.35, 0.18]} rotation={[0, -0.4, 0.2]}>
+            {/* Teddy Body */}
+            <mesh material={hairMaterial}>
+              <sphereGeometry args={[0.14, 16, 16]} />
+            </mesh>
+            {/* Teddy Head */}
+            <mesh position={[0, 0.18, 0]} material={hairMaterial}>
+              <sphereGeometry args={[0.12, 16, 16]} />
+            </mesh>
+            {/* Teddy Ears */}
+            <mesh position={[-0.09, 0.28, 0]} material={hairMaterial}>
+              <sphereGeometry args={[0.045, 12, 12]} />
+            </mesh>
+            <mesh position={[0.09, 0.28, 0]} material={hairMaterial}>
+              <sphereGeometry args={[0.045, 12, 12]} />
+            </mesh>
+            {/* Teddy Snout */}
+            <mesh position={[0, 0.16, 0.1]} material={skinMaterial}>
+              <sphereGeometry args={[0.04, 12, 12]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.handItem === 'swirl_icecream' && (
+          <group position={[0, -0.48, 0.12]} rotation={[0.3, 0, 0]}>
+            {/* Waffle Cone */}
+            <mesh rotation={[Math.PI, 0, 0]} material={goldMaterial}>
+              <coneGeometry args={[0.08, 0.24, 12]} />
+            </mesh>
+            {/* Scoop 1 */}
+            <mesh position={[0, 0.14, 0]} material={blushMaterial}>
+              <sphereGeometry args={[0.09, 16, 16]} />
+            </mesh>
+            {/* Scoop 2 */}
+            <mesh position={[0, 0.24, 0]} material={whiteMaterial}>
+              <sphereGeometry args={[0.07, 16, 16]} />
+            </mesh>
+          </group>
+        )}
+
+        {config.handItem === 'star_balloon' && (
+          <group position={[0, -0.3, 0.1]}>
+            {/* String */}
+            <mesh position={[0, 0.45, 0]} material={whiteMaterial}>
+              <cylinderGeometry args={[0.006, 0.006, 0.9, 8]} />
+            </mesh>
+            {/* Star Balloon */}
+            <mesh position={[0, 1.0, 0]} material={goldMaterial}>
+              <octahedronGeometry args={[0.22]} />
+            </mesh>
+          </group>
+        )}
+      </group>
+
+      {/* ================= LEGS & FEET ================= */}
+      {/* Left Leg */}
+      <group ref={leftLegRef} position={[-0.18, 0.65, 0]}>
+        <mesh position={[0, -0.22, 0]} material={outfitSecondaryMaterial}>
+          <capsuleGeometry args={[0.11, 0.35, 8, 16]} />
+        </mesh>
+        {/* Left Shoe */}
+        <group position={[0, -0.48, 0.05]}>
+          <mesh material={shoesMaterial} castShadow>
+            <boxGeometry args={[0.18, 0.15, 0.32]} />
+          </mesh>
+          {config.shoes === 'bunny_slippers' && (
+            <group position={[0, 0.1, 0.12]}>
+              <mesh position={[-0.05, 0.08, 0]} rotation={[0.2, 0, -0.1]} material={whiteMaterial}>
+                <capsuleGeometry args={[0.03, 0.12, 6, 12]} />
+              </mesh>
+              <mesh position={[0.05, 0.08, 0]} rotation={[0.2, 0, 0.1]} material={whiteMaterial}>
+                <capsuleGeometry args={[0.03, 0.12, 6, 12]} />
+              </mesh>
+            </group>
+          )}
+          {config.shoes === 'roller_skates' && (
+            <group position={[0, -0.1, 0]}>
+              <mesh position={[-0.1, 0, -0.08]} rotation={[0, 0, Math.PI / 2]} material={goldMaterial}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 12]} />
+              </mesh>
+              <mesh position={[0.1, 0, -0.08]} rotation={[0, 0, Math.PI / 2]} material={goldMaterial}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 12]} />
+              </mesh>
+              <mesh position={[-0.1, 0, 0.08]} rotation={[0, 0, Math.PI / 2]} material={goldMaterial}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 12]} />
+              </mesh>
+              <mesh position={[0.1, 0, 0.08]} rotation={[0, 0, Math.PI / 2]} material={goldMaterial}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 12]} />
+              </mesh>
+            </group>
+          )}
+        </group>
+      </group>
+
+      {/* Right Leg */}
+      <group ref={rightLegRef} position={[0.18, 0.65, 0]}>
+        <mesh position={[0, -0.22, 0]} material={outfitSecondaryMaterial}>
+          <capsuleGeometry args={[0.11, 0.35, 8, 16]} />
+        </mesh>
+        {/* Right Shoe */}
+        <group position={[0, -0.48, 0.05]}>
+          <mesh material={shoesMaterial} castShadow>
+            <boxGeometry args={[0.18, 0.15, 0.32]} />
+          </mesh>
+          {config.shoes === 'bunny_slippers' && (
+            <group position={[0, 0.1, 0.12]}>
+              <mesh position={[-0.05, 0.08, 0]} rotation={[0.2, 0, -0.1]} material={whiteMaterial}>
+                <capsuleGeometry args={[0.03, 0.12, 6, 12]} />
+              </mesh>
+              <mesh position={[0.05, 0.08, 0]} rotation={[0.2, 0, 0.1]} material={whiteMaterial}>
+                <capsuleGeometry args={[0.03, 0.12, 6, 12]} />
+              </mesh>
+            </group>
+          )}
+          {config.shoes === 'roller_skates' && (
+            <group position={[0, -0.1, 0]}>
+              <mesh position={[-0.1, 0, -0.08]} rotation={[0, 0, Math.PI / 2]} material={goldMaterial}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 12]} />
+              </mesh>
+              <mesh position={[0.1, 0, -0.08]} rotation={[0, 0, Math.PI / 2]} material={goldMaterial}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 12]} />
+              </mesh>
+              <mesh position={[-0.1, 0, 0.08]} rotation={[0, 0, Math.PI / 2]} material={goldMaterial}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 12]} />
+              </mesh>
+              <mesh position={[0.1, 0, 0.08]} rotation={[0, 0, Math.PI / 2]} material={goldMaterial}>
+                <cylinderGeometry args={[0.04, 0.04, 0.03, 12]} />
+              </mesh>
+            </group>
+          )}
+        </group>
+      </group>
+
+      {/* ================= BACK ITEMS ================= */}
+      {config.backItem === 'fairy_wings' && (
+        <group ref={wingsRef} position={[0, 1.15, -0.25]}>
+          {/* Left Wing */}
+          <mesh position={[-0.32, 0.12, 0]} rotation={[0, -0.2, 0.4]} material={blushMaterial}>
+            <circleGeometry args={[0.34, 24]} />
+          </mesh>
+          {/* Right Wing */}
+          <mesh position={[0.32, 0.12, 0]} rotation={[0, 0.2, -0.4]} material={blushMaterial}>
+            <circleGeometry args={[0.34, 24]} />
+          </mesh>
+        </group>
+      )}
+
+      {config.backItem === 'rocket_jetpack' && (
+        <group position={[0, 1.1, -0.3]}>
+          {/* Twin Rockets */}
+          <mesh position={[-0.15, 0, 0]} material={whiteMaterial}>
+            <cylinderGeometry args={[0.09, 0.09, 0.45, 16]} />
+          </mesh>
+          <mesh position={[-0.15, 0.26, 0]} material={outfitPrimaryMaterial}>
+            <coneGeometry args={[0.09, 0.18, 16]} />
+          </mesh>
+          <mesh position={[0.15, 0, 0]} material={whiteMaterial}>
+            <cylinderGeometry args={[0.09, 0.09, 0.45, 16]} />
+          </mesh>
+          <mesh position={[0.15, 0.26, 0]} material={outfitPrimaryMaterial}>
+            <coneGeometry args={[0.09, 0.18, 16]} />
+          </mesh>
+          {/* Jetpack Flame Cones */}
+          <mesh position={[-0.15, -0.32, 0]} rotation={[Math.PI, 0, 0]} material={goldMaterial}>
+            <coneGeometry args={[0.07, 0.2, 12]} />
+          </mesh>
+          <mesh position={[0.15, -0.32, 0]} rotation={[Math.PI, 0, 0]} material={goldMaterial}>
+            <coneGeometry args={[0.07, 0.2, 12]} />
+          </mesh>
+        </group>
+      )}
+
+      {config.backItem === 'school_backpack' && (
+        <group position={[0, 1.05, -0.28]}>
+          <mesh material={outfitPrimaryMaterial} castShadow>
+            <boxGeometry args={[0.38, 0.42, 0.18]} />
+          </mesh>
+          {/* Sleeping Bag Rolled on Top */}
+          <mesh position={[0, 0.26, 0]} rotation={[0, 0, Math.PI / 2]} material={outfitSecondaryMaterial}>
+            <cylinderGeometry args={[0.09, 0.09, 0.38, 16]} />
+          </mesh>
+        </group>
+      )}
+
+      {config.backItem === 'hero_cape' && (
+        <group ref={capeRef} position={[0, 1.35, -0.24]}>
+          <mesh material={outfitPrimaryMaterial} castShadow>
+            <boxGeometry args={[0.55, 0.85, 0.03]} />
+          </mesh>
+        </group>
+      )}
+    </group>
+  );
+};
