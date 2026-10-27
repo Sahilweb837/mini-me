@@ -647,75 +647,137 @@ export const AvatarModel: React.FC<AvatarModelProps> = ({ config, pose }) => {
         </group>
 
         {/* Mouth with Expressions */}
+        {/* Mouth with HD Pro Real Smile Expressions */}
         {config.expression === 'happy' && (
-          <mesh position={[0, -0.2, 0.48]} rotation={[Math.PI, 0, 0]} material={blackMaterial}>
-            <torusGeometry args={[0.08, 0.022, 12, 24, Math.PI]} />
-          </mesh>
+          <group position={[0, -0.2, 0.48]}>
+            {/* Main Sweet Smile Lip Arc */}
+            <mesh rotation={[Math.PI, 0, 0]} material={blackMaterial}>
+              <torusGeometry args={[0.085, 0.02, 16, 32, Math.PI]} />
+            </mesh>
+            {/* Pro Real Smile: Pearly White Upper Teeth Bar */}
+            <mesh position={[0, 0.012, 0.008]} material={whiteMaterial}>
+              <boxGeometry args={[0.085, 0.02, 0.015]} />
+            </mesh>
+            {/* Subtle Inner Rosy Mouth Depth */}
+            <mesh position={[0, -0.015, 0.005]} material={blushMaterial}>
+              <sphereGeometry args={[0.04, 12, 12]} />
+            </mesh>
+            {/* Cute Cheerful Dimples */}
+            <mesh position={[-0.095, 0.015, -0.01]} material={blushMaterial}>
+              <sphereGeometry args={[0.016, 8, 8]} />
+            </mesh>
+            <mesh position={[0.095, 0.015, -0.01]} material={blushMaterial}>
+              <sphereGeometry args={[0.016, 8, 8]} />
+            </mesh>
+          </group>
         )}
         {config.expression === 'excited' && (
-          <group position={[0, -0.22, 0.48]}>
+          <group position={[0, -0.21, 0.48]}>
+            {/* Wide Open Radiant Laugh Mouth */}
             <mesh rotation={[Math.PI / 2, 0, 0]} material={blackMaterial}>
-              <cylinderGeometry args={[0.08, 0.08, 0.02, 18]} />
+              <cylinderGeometry args={[0.09, 0.09, 0.02, 24]} />
             </mesh>
-            <mesh position={[0, -0.03, 0.015]} material={blushMaterial}>
-              <sphereGeometry args={[0.045, 12, 12]} />
+            {/* Pearly White Upper Teeth Row */}
+            <mesh position={[0, 0.04, 0.012]} material={whiteMaterial}>
+              <boxGeometry args={[0.11, 0.028, 0.018]} />
+            </mesh>
+            {/* Rosy Tongue */}
+            <mesh position={[0, -0.04, 0.015]} material={blushMaterial}>
+              <sphereGeometry args={[0.05, 14, 14]} />
+            </mesh>
+            {/* Cute Cheek Dimples */}
+            <mesh position={[-0.11, 0.03, -0.01]} material={blushMaterial}>
+              <sphereGeometry args={[0.018, 8, 8]} />
+            </mesh>
+            <mesh position={[0.11, 0.03, -0.01]} material={blushMaterial}>
+              <sphereGeometry args={[0.018, 8, 8]} />
             </mesh>
           </group>
         )}
         {config.expression === 'silly' && (
           <group position={[0, -0.2, 0.48]}>
             <mesh rotation={[Math.PI, 0, 0]} material={blackMaterial}>
-              <torusGeometry args={[0.08, 0.02, 12, 24, Math.PI]} />
+              <torusGeometry args={[0.085, 0.02, 14, 28, Math.PI]} />
             </mesh>
+            {/* Upper Teeth Bar */}
+            <mesh position={[0, 0.012, 0.008]} material={whiteMaterial}>
+              <boxGeometry args={[0.08, 0.018, 0.012]} />
+            </mesh>
+            {/* Cheeky Tongue */}
             <mesh position={[0.02, -0.06, 0.03]} rotation={[0.4, 0, 0]} material={blushMaterial}>
               <boxGeometry args={[0.06, 0.09, 0.03]} />
             </mesh>
           </group>
         )}
         {config.expression === 'cool' && (
-          <mesh position={[0.03, -0.2, 0.48]} rotation={[Math.PI, 0, -0.25]} material={blackMaterial}>
-            <torusGeometry args={[0.08, 0.02, 12, 24, Math.PI * 0.7]} />
-          </mesh>
+          <group position={[0.03, -0.2, 0.48]}>
+            <mesh rotation={[Math.PI, 0, -0.25]} material={blackMaterial}>
+              <torusGeometry args={[0.08, 0.02, 12, 24, Math.PI * 0.7]} />
+            </mesh>
+            {/* Little white tooth glint */}
+            <mesh position={[0.015, 0.01, 0.008]} material={whiteMaterial}>
+              <boxGeometry args={[0.035, 0.015, 0.01]} />
+            </mesh>
+          </group>
         )}
         {(config.expression === 'wink' || config.expression === 'sleepy') && (
-          <mesh position={[0, -0.2, 0.48]} rotation={[Math.PI, 0, 0]} material={blackMaterial}>
-            <torusGeometry args={[0.07, 0.02, 12, 24, Math.PI]} />
-          </mesh>
-        )}
-        {config.expression === 'evil_grin' && (
           <group position={[0, -0.2, 0.48]}>
             <mesh rotation={[Math.PI, 0, 0]} material={blackMaterial}>
-              <torusGeometry args={[0.11, 0.025, 12, 24, Math.PI * 1.1]} />
+              <torusGeometry args={[0.075, 0.02, 12, 24, Math.PI]} />
             </mesh>
-            {/* Little sharp teeth */}
-            <mesh position={[-0.05, 0.02, 0.01]} rotation={[Math.PI, 0, 0]} material={whiteMaterial}>
-              <coneGeometry args={[0.02, 0.04, 4]} />
+            <mesh position={[0, 0.008, 0.006]} material={whiteMaterial}>
+              <boxGeometry args={[0.065, 0.016, 0.01]} />
             </mesh>
-            <mesh position={[0.05, 0.02, 0.01]} rotation={[Math.PI, 0, 0]} material={whiteMaterial}>
-              <coneGeometry args={[0.02, 0.04, 4]} />
+          </group>
+        )}
+        {config.expression === 'evil_grin' && (
+          <group position={[0, -0.19, 0.48]}>
+            <mesh rotation={[Math.PI, 0, 0]} material={blackMaterial}>
+              <torusGeometry args={[0.11, 0.024, 14, 28, Math.PI * 1.1]} />
+            </mesh>
+            {/* Pearly Teeth with Fangs */}
+            <mesh position={[0, 0.01, 0.008]} material={whiteMaterial}>
+              <boxGeometry args={[0.12, 0.018, 0.012]} />
+            </mesh>
+            <mesh position={[-0.055, -0.015, 0.014]} rotation={[Math.PI, 0, 0]} material={whiteMaterial}>
+              <coneGeometry args={[0.022, 0.05, 4]} />
+            </mesh>
+            <mesh position={[0.055, -0.015, 0.014]} rotation={[Math.PI, 0, 0]} material={whiteMaterial}>
+              <coneGeometry args={[0.022, 0.05, 4]} />
             </mesh>
           </group>
         )}
         {config.expression === 'villain_smirk' && (
-          <mesh position={[0.05, -0.19, 0.48]} rotation={[Math.PI, 0, -0.45]} material={blackMaterial}>
-            <torusGeometry args={[0.09, 0.022, 12, 24, Math.PI * 0.8]} />
-          </mesh>
+          <group position={[0.04, -0.19, 0.48]}>
+            <mesh rotation={[Math.PI, 0, -0.4]} material={blackMaterial}>
+              <torusGeometry args={[0.09, 0.022, 12, 24, Math.PI * 0.85]} />
+            </mesh>
+            {/* Sly Tooth Glimmer */}
+            <mesh position={[0.02, 0.02, 0.01]} material={whiteMaterial}>
+              <boxGeometry args={[0.045, 0.018, 0.01]} />
+            </mesh>
+          </group>
         )}
         {config.expression === 'shadow_stare' && (
-          <mesh position={[0, -0.21, 0.49]} material={blackMaterial}>
-            <boxGeometry args={[0.14, 0.025, 0.02]} />
-          </mesh>
+          <group position={[0, -0.21, 0.49]}>
+            <mesh material={blackMaterial}>
+              <boxGeometry args={[0.14, 0.025, 0.02]} />
+            </mesh>
+          </group>
         )}
         {config.expression === 'playful_vampire' && (
           <group position={[0, -0.2, 0.48]}>
             <mesh rotation={[Math.PI, 0, 0]} material={blackMaterial}>
               <torusGeometry args={[0.09, 0.022, 12, 24, Math.PI]} />
             </mesh>
-            {/* Cute Vampire Fangs */}
-            <mesh position={[-0.05, -0.01, 0.02]} rotation={[Math.PI, 0, 0]} material={whiteMaterial}>
+            {/* Pearly teeth and Cute Vampire Fangs */}
+            <mesh position={[0, 0.01, 0.008]} material={whiteMaterial}>
+              <boxGeometry args={[0.09, 0.018, 0.012]} />
+            </mesh>
+            <mesh position={[-0.05, -0.015, 0.015]} rotation={[Math.PI, 0, 0]} material={whiteMaterial}>
               <coneGeometry args={[0.02, 0.05, 4]} />
             </mesh>
-            <mesh position={[0.05, -0.01, 0.02]} rotation={[Math.PI, 0, 0]} material={whiteMaterial}>
+            <mesh position={[0.05, -0.015, 0.015]} rotation={[Math.PI, 0, 0]} material={whiteMaterial}>
               <coneGeometry args={[0.02, 0.05, 4]} />
             </mesh>
           </group>
