@@ -8,8 +8,10 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { 
   CharacterConfig, 
   PoseType, 
-  CategoryId 
+  CategoryId,
+  CharacterGender
 } from './src/types/character';
+import { AppIcon } from './src/components/ui/AppIcon';
 import { 
   DEFAULT_CHARACTER,
   SKIN_TONES, 
@@ -45,6 +47,15 @@ import { PoseSelector } from './src/components/ui/PoseSelector';
 import { CharacterPassportModal } from './src/components/ui/CharacterPassportModal';
 import { GalleryModal } from './src/components/ui/GalleryModal';
 import { GameWorld } from './src/components/game/GameWorld';
+
+const CHARACTER_TYPES: { id: CharacterGender; label: string; iconName: string; activeColor: string }[] = [
+  { id: 'boy', label: 'Boy Hero', iconName: 'man', activeColor: '#3B82F6' },
+  { id: 'girl', label: 'Girl Hero', iconName: 'woman', activeColor: '#EC4899' },
+  { id: 'neutral', label: 'Explorer', iconName: 'happy', activeColor: '#10B981' },
+  { id: 'villain', label: 'Dark Lord', iconName: 'skull', activeColor: '#7C3AED' },
+  { id: 'shadow_imp', label: 'Shadow Imp', iconName: 'moon', activeColor: '#4338CA' },
+  { id: 'cyber_rebel', label: 'Cyber Rebel', iconName: 'hardware-chip', activeColor: '#0891B2' },
+];
 
 export default function App() {
   const [character, setCharacter] = useState<CharacterConfig>(DEFAULT_CHARACTER);
@@ -174,7 +185,7 @@ export default function App() {
             }}
             activeOpacity={0.85}
           >
-            <Text style={styles.floatingPlayEmoji}>🎮</Text>
+            <AppIcon name="game-controller" size={16} color="#FFFFFF" />
             <Text style={styles.floatingPlayText}>Play in 3D World</Text>
           </TouchableOpacity>
 
@@ -205,7 +216,8 @@ export default function App() {
 
           {/* Touch Interaction Hint */}
           <View style={styles.dragHint}>
-            <Text style={styles.dragHintText}>🖐️ Drag to rotate 360° • Pinch to zoom</Text>
+            <AppIcon name="finger-print-outline" size={12} color="#FFFFFF" />
+            <Text style={styles.dragHintText}>Drag to rotate 360° • Pinch to zoom</Text>
           </View>
         </View>
 
@@ -226,27 +238,39 @@ export default function App() {
             {/* TAB: BODY & FACE */}
             {activeCategory === 'body' && (
               <View>
-                {/* Gender / Style Pill */}
+                {/* Character Archetype Pills */}
                 <View style={styles.genderRow}>
-                  <Text style={styles.sectionHeader}>Character Type</Text>
+                  <Text style={styles.sectionHeader}>Character Archetype</Text>
                   <View style={styles.genderPills}>
-                    {(['boy', 'girl', 'neutral'] as const).map(g => (
-                      <TouchableOpacity
-                        key={g}
-                        style={[
-                          styles.genderPill,
-                          character.gender === g && styles.genderPillActive,
-                        ]}
-                        onPress={() => {
-                          soundEngine.playPop(520);
-                          updateCharacter({ gender: g });
-                        }}
-                      >
-                        <Text style={styles.genderEmoji}>
-                          {g === 'boy' ? '👦 Boy' : (g === 'girl' ? '👧 Girl' : '🧒 Hero')}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
+                    {CHARACTER_TYPES.map(g => {
+                      const isActive = character.gender === g.id;
+                      return (
+                        <TouchableOpacity
+                          key={g.id}
+                          style={[
+                            styles.genderPill,
+                            isActive && { backgroundColor: `${g.activeColor}15`, borderColor: g.activeColor },
+                          ]}
+                          onPress={() => {
+                            if (g.id === 'villain') soundEngine.playEvilLaugh();
+                            else if (g.id === 'shadow_imp') soundEngine.playMagicSpell();
+                            else if (g.id === 'cyber_rebel') soundEngine.playLaserSlash();
+                            else soundEngine.playPop(520);
+                            updateCharacter({ gender: g.id });
+                          }}
+                          activeOpacity={0.75}
+                        >
+                          <AppIcon
+                            name={g.iconName}
+                            size={14}
+                            color={isActive ? g.activeColor : '#64748B'}
+                          />
+                          <Text style={[styles.genderText, isActive && { color: g.activeColor, fontWeight: '800' }]}>
+                            {g.label}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
                 </View>
 
@@ -279,9 +303,14 @@ export default function App() {
                       updateCharacter({ blushEnabled: !character.blushEnabled });
                     }}
                   >
-                    <Text style={styles.toggleButtonText}>
-                      {character.blushEnabled ? 'ON ✨' : 'OFF'}
-                    </Text>
+                    <View style={styles.toggleInner}>
+                      {character.blushEnabled && (
+                        <AppIcon name="sparkles" size={12} color="#FFFFFF" />
+                      )}
+                      <Text style={styles.toggleButtonText}>
+                        {character.blushEnabled ? 'ON' : 'OFF'}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -440,9 +469,12 @@ export default function App() {
                         updateCharacter({ personality: trait });
                       }}
                     >
-                      <Text style={[styles.traitText, character.personality === trait && styles.traitTextSelected]}>
-                        ⭐ {trait}
-                      </Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                        <AppIcon name="star" size={11} color={character.personality === trait ? '#BE185D' : '#F59E0B'} />
+                        <Text style={[styles.traitText, character.personality === trait && styles.traitTextSelected]}>
+                          {trait}
+                        </Text>
+                      </View>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -610,26 +642,32 @@ const styles = StyleSheet.create({
   },
   genderPills: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
     marginTop: 4,
   },
   genderPill: {
-    flex: 1,
+    width: '31%',
+    flexDirection: 'row',
     backgroundColor: '#F1F5F9',
     paddingVertical: 8,
+    paddingHorizontal: 4,
     borderRadius: 14,
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#E2E8F0',
+    gap: 5,
   },
-  genderPillActive: {
-    backgroundColor: '#EEF2FF',
-    borderColor: '#6366F1',
+  genderText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#475569',
   },
-  genderEmoji: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#334155',
+  toggleInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   toggleRow: {
     flexDirection: 'row',

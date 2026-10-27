@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { CharacterConfig, PersonalityTrait, LifeDream } from '../../types/character';
 import { PERSONALITY_TRAITS, LIFE_DREAMS } from '../../constants/presets';
 import { soundEngine } from '../../utils/audio';
+import { AppIcon } from './AppIcon';
 
 interface CharacterPassportModalProps {
   visible: boolean;
@@ -15,12 +16,14 @@ interface CharacterPassportModalProps {
 
 const FUN_FIRST_NAMES = [
   'Leo', 'Pip', 'Stella', 'Oliver', 'Mia', 'Milo', 'Luna', 'Jasper', 'Chloe', 
-  'Finn', 'Ruby', 'Toby', 'Nova', 'Felix', 'Penny', 'Archie', 'Lily', 'Sammy'
+  'Finn', 'Ruby', 'Toby', 'Nova', 'Felix', 'Penny', 'Archie', 'Lily', 'Sammy',
+  'Malakor', 'Vex', 'Nyx', 'Shadow', 'Blaze', 'Kira', 'Echo', 'Draco'
 ];
 
 const FUN_TITLES = [
   'the Brave', 'Sparkle', 'the Explorer', 'Starlight', 'the Swift', 'Sunbeam',
-  'the Curious', 'Moonhopper', 'the Joyful', 'Whizkid', 'the Great', 'Wonder'
+  'the Curious', 'Moonhopper', 'the Joyful', 'Whizkid', 'the Great', 'Wonder',
+  'the Shadow Lord', 'Cyber Rebel', 'the Mischievous', 'Chaos Spark'
 ];
 
 export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
@@ -43,7 +46,6 @@ export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
   };
 
   const handleConfirmSave = () => {
-    // Sound & Confetti
     soundEngine.playVictory();
     try {
       confetti({
@@ -77,12 +79,15 @@ export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
         <View style={styles.cardContainer}>
           {/* Header */}
           <View style={styles.cardHeader}>
-            <View style={styles.sealBadge}>
-              <Text style={styles.sealText}>PASSPORT</Text>
+            <View style={styles.titleRow}>
+              <View style={styles.sealBadge}>
+                <AppIcon name="ribbon-outline" size={13} color="#FFFFFF" />
+                <Text style={styles.sealText}>PASSPORT</Text>
+              </View>
+              <Text style={styles.headerTitle}>MiniMe Citizen Card</Text>
             </View>
-            <Text style={styles.headerTitle}>MiniMe Citizen Card</Text>
             <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.7}>
-              <Text style={styles.closeIcon}>✕</Text>
+              <AppIcon name="close" size={18} color="#92400E" />
             </TouchableOpacity>
           </View>
 
@@ -90,9 +95,17 @@ export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
             {/* Character Portrait Representation Banner */}
             <View style={[styles.avatarBanner, { borderColor: character.outfitPrimaryColor }]}>
               <View style={[styles.avatarCircle, { backgroundColor: character.skinColor }]}>
-                <Text style={styles.avatarEmoji}>
-                  {character.gender === 'girl' ? '👧' : (character.gender === 'boy' ? '👦' : '🧒')}
-                </Text>
+                <AppIcon
+                  name={
+                    character.gender === 'villain' || character.gender === 'shadow_imp'
+                      ? 'skull-outline'
+                      : character.gender === 'cyber_rebel'
+                      ? 'hardware-chip-outline'
+                      : 'happy'
+                  }
+                  size={30}
+                  color={character.gender === 'villain' ? '#1E293B' : '#FFFFFF'}
+                />
               </View>
               <View style={styles.bannerInfo}>
                 <Text style={styles.bannerSubtitle}>CITIZEN OF</Text>
@@ -105,6 +118,9 @@ export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
                   </View>
                   <View style={[styles.tag, { backgroundColor: character.outfitPrimaryColor }]}>
                     <Text style={styles.tagTextLight}>Outfit</Text>
+                  </View>
+                  <View style={[styles.tag, { backgroundColor: character.shoesColor }]}>
+                    <Text style={styles.tagTextLight}>Shoes</Text>
                   </View>
                 </View>
               </View>
@@ -127,7 +143,7 @@ export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
                   onPress={handleRandomName}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.randomNameIcon}>✨</Text>
+                  <AppIcon name="sparkles" size={18} color="#D97706" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -173,9 +189,16 @@ export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
                       }}
                       activeOpacity={0.8}
                     >
-                      <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
-                        ⭐ {trait}
-                      </Text>
+                      <View style={styles.chipInner}>
+                        <AppIcon
+                          name="star"
+                          size={11}
+                          color={isSelected ? '#7C3AED' : '#F59E0B'}
+                        />
+                        <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+                          {trait}
+                        </Text>
+                      </View>
                     </TouchableOpacity>
                   );
                 })}
@@ -191,7 +214,11 @@ export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
               activeOpacity={0.85}
               disabled={savedSuccess}
             >
-              <Text style={styles.saveConfirmEmoji}>{savedSuccess ? '🎉' : '💾'}</Text>
+              <AppIcon
+                name={savedSuccess ? 'checkmark-circle' : 'save'}
+                size={20}
+                color="#FFFFFF"
+              />
               <Text style={styles.saveConfirmText}>
                 {savedSuccess ? 'Saved to Gallery!' : 'Save & Issue Passport'}
               </Text>
@@ -213,7 +240,7 @@ export const CharacterPassportModal: React.FC<CharacterPassportModalProps> = ({
                 }}
                 activeOpacity={0.85}
               >
-                <Text style={styles.playNowEmoji}>🎮</Text>
+                <AppIcon name="game-controller" size={20} color="#FFFFFF" />
                 <Text style={styles.playNowText}>Save & Play in 3D World</Text>
               </TouchableOpacity>
             )}
@@ -242,7 +269,7 @@ const styles = StyleSheet.create({
     borderColor: '#F59E0B',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.25,
     shadowRadius: 20,
     overflow: 'hidden',
   },
@@ -256,11 +283,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#FDE68A',
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   sealBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#F59E0B',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 12,
+    gap: 4,
   },
   sealText: {
     color: '#FFFFFF',
@@ -281,11 +316,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  closeIcon: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: '#92400E',
-  },
   bodyScroll: {
     padding: 16,
   },
@@ -300,9 +330,9 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   avatarCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -311,9 +341,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-  },
-  avatarEmoji: {
-    fontSize: 32,
   },
   bannerInfo: {
     flex: 1,
@@ -384,9 +411,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  randomNameIcon: {
-    fontSize: 18,
-  },
   chipsWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -399,6 +423,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
+  },
+  chipInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   chipSelected: {
     backgroundColor: '#EDE9FE',
@@ -438,9 +467,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F59E0B',
     borderColor: '#D97706',
   },
-  saveConfirmEmoji: {
-    fontSize: 20,
-  },
   saveConfirmText: {
     fontSize: 15,
     fontWeight: '900',
@@ -462,9 +488,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 8,
-  },
-  playNowEmoji: {
-    fontSize: 20,
   },
   playNowText: {
     fontSize: 15,

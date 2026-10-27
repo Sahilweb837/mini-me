@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { CharacterConfig } from '../../types/character';
 import { soundEngine } from '../../utils/audio';
+import { AppIcon } from './AppIcon';
 
 interface GalleryModalProps {
   visible: boolean;
@@ -38,11 +39,11 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           {/* Header */}
           <View style={styles.cardHeader}>
             <View style={styles.titleRow}>
-              <Text style={styles.headerIcon}>📂</Text>
+              <AppIcon name="folder-open" size={20} color="#7C3AED" />
               <Text style={styles.headerTitle}>My Character Gallery</Text>
             </View>
             <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.7}>
-              <Text style={styles.closeIcon}>✕</Text>
+              <AppIcon name="close" size={18} color="#6D28D9" />
             </TouchableOpacity>
           </View>
 
@@ -50,7 +51,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
           <ScrollView style={styles.bodyScroll} showsVerticalScrollIndicator={false}>
             {characters.length === 0 ? (
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyEmoji}>🌟</Text>
+                <AppIcon name="sparkles" size={44} color="#C4B5FD" />
                 <Text style={styles.emptyTitle}>No Avatars Saved Yet!</Text>
                 <Text style={styles.emptySubtitle}>
                   Customize your 3D character and tap Save to store them here!
@@ -63,14 +64,25 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                     {/* Top Row */}
                     <View style={styles.cardTop}>
                       <View style={[styles.avatarCircle, { backgroundColor: char.skinColor }]}>
-                        <Text style={styles.avatarEmoji}>
-                          {char.gender === 'girl' ? '👧' : (char.gender === 'boy' ? '👦' : '🧒')}
-                        </Text>
+                        <AppIcon
+                          name={
+                            char.gender === 'villain' || char.gender === 'shadow_imp'
+                              ? 'skull-outline'
+                              : char.gender === 'cyber_rebel'
+                              ? 'hardware-chip-outline'
+                              : 'happy'
+                          }
+                          size={24}
+                          color={char.gender === 'villain' ? '#1E293B' : '#FFFFFF'}
+                        />
                       </View>
                       <View style={styles.cardDetails}>
                         <Text style={styles.cardName}>{char.name}</Text>
                         <Text style={styles.cardDream}>{char.lifeDream}</Text>
-                        <Text style={styles.cardTrait}>⭐ {char.personality}</Text>
+                        <View style={styles.traitRow}>
+                          <AppIcon name="star" size={11} color="#F59E0B" />
+                          <Text style={styles.cardTrait}>{char.personality}</Text>
+                        </View>
                       </View>
                     </View>
 
@@ -89,7 +101,8 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                         onPress={() => handleSelect(char)}
                         activeOpacity={0.8}
                       >
-                        <Text style={styles.loadText}>Studio 🎨</Text>
+                        <AppIcon name="color-palette-outline" size={14} color="#FFFFFF" />
+                        <Text style={styles.loadText}>Studio</Text>
                       </TouchableOpacity>
 
                       {onPlayCharacter && (
@@ -102,7 +115,8 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                           }}
                           activeOpacity={0.8}
                         >
-                          <Text style={styles.playCardText}>Play 🎮</Text>
+                          <AppIcon name="game-controller-outline" size={14} color="#FFFFFF" />
+                          <Text style={styles.playCardText}>Play</Text>
                         </TouchableOpacity>
                       )}
 
@@ -111,7 +125,7 @@ export const GalleryModal: React.FC<GalleryModalProps> = ({
                         onPress={() => handleDelete(char.id)}
                         activeOpacity={0.7}
                       >
-                        <Text style={styles.deleteText}>🗑️</Text>
+                        <AppIcon name="trash-outline" size={16} color="#EF4444" />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -143,7 +157,7 @@ const styles = StyleSheet.create({
     borderColor: '#8B5CF6',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.25,
     shadowRadius: 20,
     overflow: 'hidden',
   },
@@ -162,9 +176,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  headerIcon: {
-    fontSize: 20,
-  },
   headerTitle: {
     fontSize: 16,
     fontWeight: '900',
@@ -178,11 +189,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  closeIcon: {
-    fontSize: 14,
-    fontWeight: '900',
-    color: '#6D28D9',
-  },
   bodyScroll: {
     padding: 16,
   },
@@ -191,9 +197,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 40,
     gap: 8,
-  },
-  emptyEmoji: {
-    fontSize: 44,
   },
   emptyTitle: {
     fontSize: 16,
@@ -224,16 +227,13 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   avatarCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#CBD5E1',
-  },
-  avatarEmoji: {
-    fontSize: 26,
   },
   cardDetails: {
     flex: 1,
@@ -249,11 +249,16 @@ const styles = StyleSheet.create({
     color: '#4F46E5',
     marginTop: 1,
   },
+  traitRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
   cardTrait: {
     fontSize: 10,
     fontWeight: '600',
     color: '#64748B',
-    marginTop: 1,
   },
   swatchesRow: {
     flexDirection: 'row',
@@ -273,11 +278,13 @@ const styles = StyleSheet.create({
   },
   loadBtn: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#8B5CF6',
     paddingVertical: 8,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 6,
   },
   loadText: {
     color: '#FFFFFF',
@@ -286,11 +293,13 @@ const styles = StyleSheet.create({
   },
   playCardBtn: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#3B82F6',
     paddingVertical: 8,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 6,
   },
   playCardText: {
     color: '#FFFFFF',
@@ -304,8 +313,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEE2E2',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  deleteText: {
-    fontSize: 14,
   },
 });

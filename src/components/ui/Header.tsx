@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { soundEngine } from '../../utils/audio';
+import { AppIcon } from './AppIcon';
 
 interface HeaderProps {
   onRandomize: () => void;
@@ -50,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
     <View style={styles.headerContainer}>
       <View style={styles.brandRow}>
         <View style={styles.titleBadge}>
-          <Text style={styles.badgeEmoji}>✨</Text>
+          <AppIcon name="sparkles" size={24} color="#F59E0B" badgeBg="#FEF3C7" badgeSize={38} />
           <View>
             <Text style={styles.appTitle}>MiniMe 3D</Text>
             <Text style={styles.appSubtitle}>Kids Life-Sim Avatar Studio</Text>
@@ -64,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
             onPress={handlePlayGame}
             activeOpacity={0.8}
           >
-            <Text style={styles.playGameEmoji}>🎮</Text>
+            <AppIcon name="game-controller-outline" size={17} color="#FFFFFF" />
             <Text style={styles.playGameText}>Play in World</Text>
           </TouchableOpacity>
 
@@ -74,7 +75,11 @@ export const Header: React.FC<HeaderProps> = ({
             onPress={toggleSound}
             activeOpacity={0.7}
           >
-            <Text style={styles.buttonEmoji}>{soundOn ? '🔊' : '🔇'}</Text>
+            <AppIcon
+              name={soundOn ? 'volume-high-outline' : 'volume-mute-outline'}
+              size={18}
+              color={soundOn ? '#0284C7' : '#94A3B8'}
+            />
           </TouchableOpacity>
 
           {/* Randomizer Dice */}
@@ -83,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
             onPress={handleRandomize}
             activeOpacity={0.75}
           >
-            <Text style={styles.randomEmoji}>🎲</Text>
+            <AppIcon name="dice-outline" size={16} color="#B45309" />
             <Text style={styles.randomText}>Surprise!</Text>
           </TouchableOpacity>
 
@@ -93,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
             onPress={handleGallery}
             activeOpacity={0.75}
           >
-            <Text style={styles.galleryEmoji}>📂</Text>
+            <AppIcon name="images-outline" size={16} color="#6D28D9" />
             <Text style={styles.galleryText}>Gallery</Text>
           </TouchableOpacity>
 
@@ -103,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({
             onPress={handleSave}
             activeOpacity={0.8}
           >
-            <Text style={styles.saveEmoji}>⭐</Text>
+            <AppIcon name="bookmark-outline" size={16} color="#FFFFFF" />
             <Text style={styles.saveText}>Save</Text>
           </TouchableOpacity>
         </View>

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import confetti from 'canvas-confetti';
 import { soundEngine } from '../../utils/audio';
+import { AppIcon } from '../ui/AppIcon';
 
 interface GameHUDProps {
   score: number;
@@ -133,21 +134,21 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           }}
           activeOpacity={0.8}
         >
-          <Text style={styles.exitIcon}>🎨</Text>
+          <AppIcon name="color-palette-outline" size={18} color="#4F46E5" />
           <Text style={styles.exitText}>Studio</Text>
         </TouchableOpacity>
 
         {/* Quest & Joy Badges */}
         <View style={styles.statsCenter}>
           <View style={styles.statPill}>
-            <Text style={styles.statEmoji}>⭐</Text>
+            <AppIcon name="star" size={15} color="#F59E0B" />
             <Text style={styles.statText}>
               {score}/{totalStars}
             </Text>
           </View>
 
           <View style={styles.statPill}>
-            <Text style={styles.statEmoji}>💖</Text>
+            <AppIcon name="heart" size={15} color="#EC4899" />
             <Text style={styles.statText}>{joy}%</Text>
           </View>
         </View>
@@ -160,9 +161,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             onPress={cycleTimeOfDay}
             activeOpacity={0.7}
           >
-            <Text style={styles.topIconEmoji}>
-              {timeOfDay === 'day' ? '☀️' : timeOfDay === 'sunset' ? '🌅' : '🌙'}
-            </Text>
+            <AppIcon
+              name={timeOfDay === 'day' ? 'sunny' : timeOfDay === 'sunset' ? 'partly-sunny' : 'moon'}
+              size={18}
+              color="#D97706"
+            />
           </TouchableOpacity>
 
           {/* Sound Toggle */}
@@ -171,7 +174,11 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             onPress={toggleSound}
             activeOpacity={0.7}
           >
-            <Text style={styles.topIconEmoji}>{soundOn ? '🔊' : '🔇'}</Text>
+            <AppIcon
+              name={soundOn ? 'volume-high' : 'volume-mute'}
+              size={18}
+              color={soundOn ? '#10B981' : '#94A3B8'}
+            />
           </TouchableOpacity>
 
           {/* Radar Toggle */}
@@ -180,7 +187,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
             onPress={() => setShowRadar(r => !r)}
             activeOpacity={0.7}
           >
-            <Text style={styles.topIconEmoji}>🗺️</Text>
+            <AppIcon name="map-outline" size={18} color="#6366F1" />
           </TouchableOpacity>
         </View>
       </View>
@@ -206,7 +213,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
                 },
               ]}
             >
-              <Text style={styles.radarIcon}>🏠</Text>
+              <AppIcon name="home" size={12} color="#4F46E5" />
             </View>
 
             {/* Stars Marks */}
@@ -251,7 +258,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
                 },
               ]}
             >
-              <Text style={styles.knobHand}>👟</Text>
+              <AppIcon name="navigate" size={22} color="#6366F1" />
             </View>
           </View>
           <Text style={styles.joystickHint}>Drag to Run / Walk</Text>
@@ -270,7 +277,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
               }}
               activeOpacity={0.7}
             >
-              <Text style={styles.buttonEmoji}>💃</Text>
+              <AppIcon name="musical-notes" size={18} color="#8B5CF6" />
               <Text style={styles.buttonSubText}>Dance</Text>
             </TouchableOpacity>
 
@@ -283,7 +290,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
               }}
               activeOpacity={0.7}
             >
-              <Text style={styles.buttonEmoji}>⚡</Text>
+              <AppIcon name="flash" size={18} color={isSprinting ? '#D97706' : '#64748B'} />
               <Text style={styles.buttonSubText}>{isSprinting ? 'Fast!' : 'Run'}</Text>
             </TouchableOpacity>
           </View>
@@ -313,7 +320,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
               }}
               activeOpacity={0.75}
             >
-              <Text style={styles.jumpEmoji}>🦘</Text>
+              <AppIcon name="arrow-up" size={22} color="#FFFFFF" />
               <Text style={styles.jumpText}>JUMP</Text>
             </TouchableOpacity>
           </View>
@@ -322,8 +329,9 @@ export const GameHUD: React.FC<GameHUDProps> = ({
 
       {/* ================= DESKTOP KEYBOARD HINT ================= */}
       <View style={styles.desktopControlsHint}>
+        <AppIcon name="hardware-chip-outline" size={13} color="#64748B" />
         <Text style={styles.desktopControlsText}>
-          ⌨️ PC Keys: WASD/Arrows: Move • Space: Jump • Shift: Sprint • E: Interact • 1: Dance
+          WASD/Arrows: Move • Space: Jump • Shift: Sprint • E: Interact • 1: Dance
         </Text>
       </View>
 
@@ -331,7 +339,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
       <Modal visible={showVictoryModal} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.victoryCard}>
-            <Text style={styles.trophyEmoji}>🏆</Text>
+            <AppIcon name="trophy" size={56} color="#F59E0B" />
             <Text style={styles.victoryTitle}>Sunshine Hero Trophy!</Text>
             <Text style={styles.victorySubtitle}>
               You collected all {totalStars} Golden Stars and made friends across the entire neighborhood!
@@ -341,7 +349,8 @@ export const GameHUD: React.FC<GameHUDProps> = ({
               style={styles.victoryButton}
               onPress={() => setDismissedVictory(true)}
             >
-              <Text style={styles.victoryButtonText}>Keep Playing! 🎈</Text>
+              <AppIcon name="sparkles" size={16} color="#FFFFFF" />
+              <Text style={styles.victoryButtonText}>Keep Playing!</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -375,24 +384,22 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 24,
+    gap: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
     elevation: 3,
   },
-  exitIcon: {
-    fontSize: 18,
-    marginRight: 6,
-  },
   exitText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#4F46E5',
   },
   statsCenter: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    gap: 10,
   },
   statPill: {
     flexDirection: 'row',
@@ -401,89 +408,90 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
+    gap: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statEmoji: {
-    fontSize: 16,
-    marginRight: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   statText: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#0F172A',
+    color: '#1E293B',
   },
   topRightActions: {
     flexDirection: 'row',
-    gap: 6,
+    alignItems: 'center',
+    gap: 8,
   },
   topIconButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: '#FFFFFFEE',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   topIconDisabled: {
-    opacity: 0.5,
-  },
-  topIconEmoji: {
-    fontSize: 18,
+    opacity: 0.6,
   },
   messageBanner: {
     alignSelf: 'center',
-    marginTop: 12,
-    backgroundColor: '#0F172ACC',
-    paddingHorizontal: 18,
+    backgroundColor: '#1E293BEE',
     paddingVertical: 10,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: '#38BDF888',
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 8,
+    maxWidth: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   messageText: {
     color: '#FFFFFF',
-    fontWeight: '700',
     fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   radarCard: {
     position: 'absolute',
-    top: 100,
+    top: 106,
     right: 16,
-    backgroundColor: '#FFFFFFDD',
-    borderRadius: 16,
+    backgroundColor: '#FFFFFFEE',
     padding: 8,
+    borderRadius: 16,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
-    shadowRadius: 6,
+    shadowRadius: 8,
     elevation: 4,
+    zIndex: 15,
   },
   radarFrame: {
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    backgroundColor: '#E2E8F0',
+    width: 78,
+    height: 78,
+    borderRadius: 39,
+    backgroundColor: '#E0F2FE',
     borderWidth: 2,
-    borderColor: '#94A3B8',
+    borderColor: '#7DD3FC',
     position: 'relative',
     overflow: 'hidden',
   },
   radarHouse: {
     position: 'absolute',
-    transform: [{ translateX: -6 }, { translateY: -6 }],
-  },
-  radarIcon: {
-    fontSize: 12,
+    width: 14,
+    height: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   radarStar: {
     position: 'absolute',
@@ -491,75 +499,70 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: '#F59E0B',
-    transform: [{ translateX: -3 }, { translateY: -3 }],
   },
   radarPlayer: {
     position: 'absolute',
-    transform: [{ translateX: -5 }, { translateY: -5 }],
-  },
-  playerDot: {
     width: 10,
     height: 10,
-    borderRadius: 5,
-    backgroundColor: '#3B82F6',
-    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playerDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#EC4899',
+    borderWidth: 1.5,
     borderColor: '#FFFFFF',
   },
   radarLabel: {
     fontSize: 9,
-    fontWeight: '700',
-    color: '#475569',
+    fontWeight: '800',
+    color: '#64748B',
     marginTop: 4,
   },
   bottomControls: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    paddingHorizontal: 20,
-    paddingBottom: 24,
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    zIndex: 20,
   },
   joystickContainer: {
     alignItems: 'center',
+    gap: 8,
   },
   joystickBase: {
-    width: JOYSTICK_RADIUS * 2,
-    height: JOYSTICK_RADIUS * 2,
-    borderRadius: JOYSTICK_RADIUS,
-    backgroundColor: '#FFFFFFCC',
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
     borderWidth: 3,
-    borderColor: '#38BDF8',
-    justifyContent: 'center',
+    borderColor: 'rgba(255, 255, 255, 0.8)',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  joystickKnob: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 5,
   },
-  joystickKnob: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#0284C7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  knobHand: {
-    fontSize: 20,
-  },
   joystickHint: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
-    color: '#334155',
-    backgroundColor: '#FFFFFFEE',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    marginTop: 6,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   actionButtonsContainer: {
     alignItems: 'flex-end',
@@ -567,154 +570,157 @@ const styles = StyleSheet.create({
   },
   actionSubRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 12,
   },
   emoteButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: '#FFFFFFEE',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   sprintButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: '#FFFFFFEE',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
   },
   sprintButtonActive: {
-    backgroundColor: '#FBBF24',
+    backgroundColor: '#FEF3C7',
     borderWidth: 2,
-    borderColor: '#D97706',
-  },
-  buttonEmoji: {
-    fontSize: 20,
+    borderColor: '#F59E0B',
   },
   buttonSubText: {
     fontSize: 9,
-    fontWeight: '700',
-    color: '#334155',
+    fontWeight: '800',
+    color: '#475569',
     marginTop: 1,
   },
   actionMainRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
   interactButton: {
     backgroundColor: '#10B981',
     paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 30,
-    shadowColor: '#000',
+    paddingHorizontal: 20,
+    borderRadius: 28,
+    shadowColor: '#10B981',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
-    borderWidth: 2,
-    borderColor: '#6EE7B7',
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 5,
   },
   interactText: {
     color: '#FFFFFF',
-    fontWeight: '800',
     fontSize: 14,
+    fontWeight: '900',
   },
   jumpButton: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#3B82F6',
-    borderWidth: 3,
-    borderColor: '#93C5FD',
-    justifyContent: 'center',
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: '#EC4899',
     alignItems: 'center',
-    shadowColor: '#000',
+    justifyContent: 'center',
+    shadowColor: '#EC4899',
     shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
     elevation: 6,
-  },
-  jumpEmoji: {
-    fontSize: 26,
   },
   jumpText: {
     color: '#FFFFFF',
-    fontWeight: '900',
     fontSize: 11,
-    marginTop: 1,
+    fontWeight: '900',
+    marginTop: 2,
+    letterSpacing: 0.5,
   },
   desktopControlsHint: {
+    position: 'absolute',
+    bottom: 8,
     alignSelf: 'center',
-    backgroundColor: '#0F172ACC',
-    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
     paddingVertical: 4,
-    borderRadius: 12,
-    marginBottom: 6,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    gap: 6,
   },
   desktopControlsText: {
-    fontSize: 11,
-    color: '#E2E8F0',
+    color: '#FFFFFF',
+    fontSize: 10,
     fontWeight: '600',
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: '#00000088',
-    justifyContent: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
     alignItems: 'center',
+    justifyContent: 'center',
     padding: 24,
   },
   victoryCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    borderRadius: 28,
     padding: 28,
     alignItems: 'center',
     maxWidth: 360,
     width: '100%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-  },
-  trophyEmoji: {
-    fontSize: 54,
-    marginBottom: 12,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
   },
   victoryTitle: {
     fontSize: 22,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontWeight: '900',
+    color: '#1E293B',
+    marginTop: 12,
     marginBottom: 8,
     textAlign: 'center',
   },
   victorySubtitle: {
     fontSize: 14,
+    fontWeight: '600',
     color: '#64748B',
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
   },
   victoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#F59E0B',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 20,
+    gap: 8,
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 5,
   },
   victoryButtonText: {
     color: '#FFFFFF',
-    fontWeight: '800',
     fontSize: 16,
+    fontWeight: '900',
   },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { soundEngine } from '../../utils/audio';
+import { AppIcon } from './AppIcon';
 
 interface ColorOption {
   id?: string;
@@ -47,7 +48,9 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({
               activeOpacity={0.8}
             >
               <View style={[styles.swatch, { backgroundColor: c.color }]}>
-                {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                {isSelected && (
+                  <AppIcon name="checkmark" size={16} color="#FFFFFF" />
+                )}
               </View>
               {c.name && (
                 <Text style={[styles.colorName, isSelected && styles.colorNameSelected]}>
@@ -103,14 +106,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 3,
-  },
-  checkmark: {
-    color: '#FFFFFF',
-    fontWeight: '900',
-    fontSize: 14,
-    textShadowColor: 'rgba(0, 0, 0, 0.6)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
   colorName: {
     fontSize: 10,

@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { soundEngine } from '../../utils/audio';
-
-export type CategoryId = 'body' | 'hair' | 'outfit' | 'shoes' | 'accessories' | 'mood' | 'theme';
+import { AppIcon } from './AppIcon';
+import { CategoryId } from '../../types/character';
 
 interface CategoryTabsProps {
   activeCategory: CategoryId;
@@ -10,13 +10,13 @@ interface CategoryTabsProps {
 }
 
 const CATEGORIES: { id: CategoryId; label: string; icon: string; color: string }[] = [
-  { id: 'body', label: 'Face & Skin', icon: '🧬', color: '#F472B6' },
-  { id: 'hair', label: 'Hair Style', icon: '💇', color: '#F59E0B' },
-  { id: 'outfit', label: 'Outfits', icon: '👕', color: '#3B82F6' },
-  { id: 'shoes', label: 'Shoes', icon: '👟', color: '#10B981' },
-  { id: 'accessories', label: 'Accessories', icon: '👓', color: '#8B5CF6' },
-  { id: 'mood', label: 'Mood & Dream', icon: '🎭', color: '#EC4899' },
-  { id: 'theme', label: 'Stage Theme', icon: '🌈', color: '#06B6D4' },
+  { id: 'body', label: 'Face & Skin', icon: 'person-circle-outline', color: '#EC4899' },
+  { id: 'hair', label: 'Hair Studio', icon: 'cut-outline', color: '#F59E0B' },
+  { id: 'outfit', label: 'Outfits', icon: 'shirt-outline', color: '#3B82F6' },
+  { id: 'shoes', label: 'Footwear', icon: 'footsteps-outline', color: '#10B981' },
+  { id: 'accessories', label: 'Gear & Wings', icon: 'glasses-outline', color: '#8B5CF6' },
+  { id: 'mood', label: 'Mood & Dream', icon: 'happy-outline', color: '#F43F5E' },
+  { id: 'theme', label: 'Stage Realm', icon: 'sparkles-outline', color: '#06B6D4' },
 ];
 
 export const CategoryTabs: React.FC<CategoryTabsProps> = ({
@@ -45,13 +45,19 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
                 isActive && {
                   backgroundColor: cat.color,
                   borderColor: cat.color,
-                  transform: [{ scale: 1.04 }],
+                  transform: [{ scale: 1.05 }],
+                  shadowColor: cat.color,
+                  shadowOpacity: 0.35,
                 },
               ]}
               onPress={() => handleSelect(cat.id)}
               activeOpacity={0.8}
             >
-              <Text style={styles.tabIcon}>{cat.icon}</Text>
+              <AppIcon
+                name={cat.icon}
+                size={18}
+                color={isActive ? '#FFFFFF' : cat.color}
+              />
               <Text
                 style={[
                   styles.tabLabel,
@@ -72,8 +78,8 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1.5,
-    borderBottomColor: '#E2E8F0',
-    paddingVertical: 8,
+    borderBottomColor: '#F1F5F9',
+    paddingVertical: 10,
   },
   scrollContent: {
     paddingHorizontal: 12,
@@ -83,24 +89,25 @@ const styles = StyleSheet.create({
   tabButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 7,
-    paddingHorizontal: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 24,
     backgroundColor: '#F8FAFC',
     borderWidth: 2,
     borderColor: '#E2E8F0',
-    gap: 6,
-  },
-  tabIcon: {
-    fontSize: 18,
+    gap: 7,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
   },
   tabLabel: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
     color: '#475569',
   },
   tabLabelActive: {
     color: '#FFFFFF',
-    fontWeight: '900',
   },
 });
